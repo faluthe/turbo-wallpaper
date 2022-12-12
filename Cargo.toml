@@ -6,12 +6,15 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+rand = "0.8.5"
 image = "0.24.5"
 imageproc = "0.23.0"
 rusttype = "0.9.3"
 chrono = "0.4.23"
 directories = "4.0.1"
-windows = { version = "0.41.0", features = [
+reqwest = {version = "0.11", features = ["blocking", "cookies"]}
+scraper = "0.13.0"
+windows = { version = "0.43.0", features = [
     "Win32_UI_Shell",
     "Win32_System_Com"
 ]}
