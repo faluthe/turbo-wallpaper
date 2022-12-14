@@ -2,7 +2,7 @@ use std::{fs, io::Cursor, thread, time::Duration};
 
 use chrono::Local;
 use directories::UserDirs;
-use image::{io::Reader, Rgba};
+use image::{io::Reader, Rgba, imageops::FilterType};
 use imageproc::drawing;
 use rand::seq::IteratorRandom;
 use rusttype::{Font, Scale};
@@ -30,26 +30,35 @@ fn main() {
     // Open base image
     let in_dir = fs::read_dir(in_dir).unwrap();
     let img_entry = in_dir.choose(&mut rng).expect("Couldn't find wallpaper").unwrap();
-    println!("{:?}", img_entry.path());
     let img = Reader::new(Cursor::new(fs::read(img_entry.path()).unwrap()))
         .with_guessed_format()
         .unwrap()
         .decode()
-        .unwrap();
+        .unwrap()
+        // TODO: make this work for all monitors
+        .resize_to_fill(1920, 1080, FilterType::Lanczos3);
 
     let w = img.width() as i32;
     let h = img.height() as i32;
     let clock_scale = Scale{ x: w as f32 / 8.0f32, y: h as f32 / 8.0f32 };
+    let date_scale = Scale{ x: w as f32 / 32.0f32, y: h as f32 / 32.0f32 };
     let x = w / 2 - clock_scale.x as i32;
     let y = h / 2 - (clock_scale.y as i32 / 2);
     let mut prev_time = String::new();
     loop {
         // Edit image (only if time has changed)
-        let time = Local::now().time().format("%I:%M").to_string();
+        let time = Local::now().time().format("%-I:%M").to_string();
         if time != prev_time {
             // Draw time
-            let mut out_img = drawing::draw_text(&img, black, x - 5, y - 5, clock_scale, &font, &time);
+            let mut out_img = drawing::draw_text(&img, black, x + 10, y + 7, clock_scale, &font, &time);
             drawing::draw_text_mut(&mut out_img, white, x, y, clock_scale, &font, &time);
+
+            // Draw date
+            let x = x - (clock_scale.x / 2.0f32) as i32;
+            let y = y + clock_scale.y as i32 + 3;
+            let date = Local::now().date_naive().format("%A, %B %-d %C%y").to_string();
+            drawing::draw_text_mut(&mut out_img, black, x + 5, y + 3, date_scale, &font, &date);
+            drawing::draw_text_mut(&mut out_img, white, x, y, date_scale, &font, &date);
             
             out_img.save(&out_path).unwrap();
 
@@ -59,7 +68,7 @@ fn main() {
                 .expect("Failed to set desktop wallpaper");
         }
 
-        thread::sleep(Duration::from_secs(10));
+        thread::sleep(Duration::from_secs(1));
         prev_time = time;
     }
 }
