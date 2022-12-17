@@ -518,6 +518,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "mslnk"
+version = "0.1.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "86c97310150b7f496a93f31690da7822b99d95ff68ca9d30fb09d3ad54375c76"
+dependencies = [
+ "bitflags",
+ "byteorder",
+ "log",
+]
+
+[[package]]
 name = "nalgebra"
 version = "0.30.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -982,6 +993,7 @@ dependencies = [
  "directories",
  "image",
  "imageproc",
+ "mslnk",
  "rand 0.8.5",
  "rusttype",
  "windows",
