@@ -1,9 +1,10 @@
-use std::{fs, io::{Cursor, self}, thread, time::Duration};
+use std::{fs::{self, File}, io::{Cursor, self}, thread, time::Duration, env};
 
 use chrono::Local;
-use directories::UserDirs;
+use directories::{UserDirs, BaseDirs};
 use image::{io::Reader, Rgba, imageops::FilterType};
 use imageproc::drawing;
+use mslnk::ShellLink;
 use rand::seq::IteratorRandom;
 use rusttype::{Font, Scale};
 use windows::{Win32::{UI::{Shell::{IDesktopWallpaper, DesktopWallpaper}, WindowsAndMessaging::{ShowWindow, SW_HIDE}}, System::{Com::{CoInitialize, CoCreateInstance, CLSCTX_ALL}, Console::GetConsoleWindow}}, core::{PCWSTR, HSTRING}};
@@ -22,12 +23,32 @@ fn main() {
 
     // Create/open dirs
     let usr_dirs = UserDirs::new().unwrap();
+    let base_dirs = BaseDirs::new().unwrap();
     let pic_dir = usr_dirs.picture_dir().unwrap().join("turbo-wallpaper");
     let in_dir = pic_dir.clone();
     fs::create_dir_all(&in_dir).unwrap();
     let out_dir = pic_dir.join("out");
     fs::create_dir_all(&out_dir).unwrap();
     let out_path = out_dir.join("wallpaper.png");
+
+    // Add program to startup programs
+    let start_dir = base_dirs.data_dir().join(r"Microsoft\Windows\Start Menu\Programs\Startup");
+    match File::open(start_dir.join("turbo-wallpaper.lnk")) {
+        Err(_) => {
+            let mut choice = String::new();
+            println!("Would you like turbo-wallpaper to run at startup? (y or n):");
+            io::stdin().read_line(&mut choice).unwrap();
+            match choice.as_str().chars().next().unwrap() {
+                'y' => {
+                    println!("Created link");
+                    let link = ShellLink::new(env::current_exe().unwrap()).unwrap();
+                    link.create_lnk(start_dir.join("turbo-wallpaper.lnk")).unwrap();
+                },
+                x => println!("{x}")
+            }
+        },
+        _ => ()
+    }
 
     // Open base image
     let in_dir = fs::read_dir(in_dir).unwrap();
