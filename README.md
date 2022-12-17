@@ -3,7 +3,7 @@ Turbo Wallpaper is a simple wallpaper changer that chooses a random wallpaper an
 
 ### Configuration
 Turbo Wallpaper will choose a random picture from a folder located in your "Pictures" directory. Once run, the program will create a "turbo-wallpaper"
-directory in your "Pictures" directory. Alternativley, you can manually create this folder. Place all your wallpapers in this folder.
+directory in your "Pictures" directory. Alternatively, you can manually create this folder. Place all your wallpapers in this folder.
 
 When first running turbo wallpaper, you will be prompted on whether you'd like to run Turbo Wallpaper on startup. Enter "y" to make Turbo Wallpaper
 run when you first start your computer.
